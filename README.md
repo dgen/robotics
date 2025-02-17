@@ -69,15 +69,22 @@ kubectl create secret docker-registry ghcr-secret --docker-server=ghcr.io \
                                                   --docker-email=YOUR_GIT_EMAIL
 
 ```
-then you can use the `*-pvc.yaml`s in this repo to create the required PVCs and then start the jobs:
+then you can use the `*-pvc.yaml`s in this repo to create the required PVCs and then start the jobs on the cluster:
 ```bash
 git clone https://github.com/dgen/robotics.git
 cd robotics
 kubectl apply -f data-pvc.yaml
 kubectl apply -f openpi-data-pvc.yaml
-kubectl apply -f aloha-sim.yaml
 kubectl apply -f openpi-server.yaml
+kubectl apply -f aloha-sim.yaml
 ```
 
 This should run a single episode of `gym_aloha/AlohaTransferCube-v0` and the result should be under
 `/app/data/aloha_sim/videos`. Should look like the one above.
+
+### Delete Jobs and Service
+```bash
+kubectl delete job aloha-sim
+kubectl delete job openpi-server
+kubectl delete service openpi-server
+```
