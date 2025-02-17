@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: $USER-job-
+  labels:
+    eidf/user: $USER
+    kueue.x-k8s.io/queue-name: informatics-user-queue
+    kueue.x-k8s.io/priority-class: batch-workload-priority
+  name: openpi-server
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: openpi-server
+    spec:
+      containers:
+        - name: openpi-server
+          image: ghcr.io/YOUR_GIT_USERNAME/openpi_server:latest
+          command: ["/bin/bash", "-c", "uv run scripts/serve_policy.py $SERVER_ARGS"]
+          env:
+            - name: SERVER_ARGS
+              value: "--env ALOHA_SIM"
+            - name: OPENPI_DATA_HOME
+              value: "/openpi_assets"
+            - name: IS_DOCKER
+              value: "true"
+          resources:
+            limits:
+              cpu: 32
+              memory: 64G
+              nvidia.com/gpu: 1
+            requests:
+              cpu: 32
+              memory: 64G
+          volumeMounts:
+            - mountPath: /openpi_assets
+              name: openpi-data
+      nodeSelector:
+        nvidia.com/gpu.product: NVIDIA-A100-SXM4-80GB
+      imagePullSecrets:
+        - name: ghcr-secret
+      restartPolicy: Never
+      volumes:
+        - name: openpi-data
+          persistentVolumeClaim:
+            claimName: openpi-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openpi-server
+spec:
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8000
+  selector:
+    app: openpi-server
+  type: ClusterIP
