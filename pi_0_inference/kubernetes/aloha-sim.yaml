@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: $USER-job-
+  labels:
+    eidf/user: $USER
+    kueue.x-k8s.io/queue-name: informatics-user-queue
+    kueue.x-k8s.io/priority-class: batch-workload-priority
+  name: aloha-sim
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        eidf/user: $USER
+        app: aloha-sim
+    spec:
+      containers:
+        - name: aloha-sim
+          image: ghcr.io/YOUR_GIT_USERNAME/aloha_sim:latest
+          workingDir: /app
+          command: ["/bin/bash",
+                    "-c",
+                    "source /.venv/bin/activate && python examples/aloha_sim/main.py --args.host $SERVER_HOST --args.port 8080"]
+          env:
+            - name: SERVER_HOST
+              value: "openpi-server"  # Connect to the OpenPI server
+          resources:
+            limits:
+              cpu: 32
+              memory: 32G
+              nvidia.com/gpu: 0
+            requests:
+              cpu: 32
+              memory: 32G
+          volumeMounts:
+            - mountPath: /data
+              name: data-volume
+      imagePullSecrets:
+        - name: ghcr-secret
+      restartPolicy: Never
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: data-pvc
