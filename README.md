@@ -1,12 +1,12 @@
 # Robotics
-### [example workflow for running p0 inference on Aloha simulation]
+### [example workflow for running p0 inference on Aloha simulation on EIDF]
 ![Episode Preview](videos/out_0.gif)
 
-### Edit Dockerfiles
+### Clone repo and edit Dockerfiles
 ```bash
 git clone https://github.com/Physical-Intelligence/openpi.git
 ```
-Edit `examples/aloha_sim/Dockerfile`
+Edit [`examples/aloha_sim/Dockerfile`](https://github.com/Physical-Intelligence/openpi/blob/main/examples/aloha_sim/Dockerfile)
 ```dockerfile
 ...
 # Set working directory
@@ -23,7 +23,7 @@ COPY ./examples/aloha_sim/requirements.txt /tmp/requirements.txt
 COPY ./packages/openpi-client/pyproject.toml /tmp/openpi-client/pyproject.toml
 ...
 ```
-and `scripts/docker/serve_policy.Dockerfile`:
+and [`scripts/docker/serve_policy.Dockerfile`](https://github.com/Physical-Intelligence/openpi/blob/main/scripts/docker/serve_policy.Dockerfile):
 ```dockerfile
 ...
 WORKDIR /app
